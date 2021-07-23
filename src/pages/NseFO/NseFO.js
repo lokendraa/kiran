@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import SweetAlert from "react-bootstrap-sweetalert";
 import {Table,
   TabContent,TabPane,Col,Modal, ModalHeader, ModalBody, Row, Card, CardBody, Button, Dropdown, DropdownMenu, DropdownItem, DropdownToggle, ButtonDropdown ,Container, ButtonGroup, Input, Label
-, NavLink, NavItem, CardText, Nav} from "reactstrap";
+, NavLink, NavItem, CardText, Nav, Media} from "reactstrap";
 import { Link } from "react-router-dom";
 //Import Breadcrumb
 import { MDBDataTable } from "mdbreact";
@@ -12,7 +12,6 @@ import MAPI from '../../api_test';
 import { Alert} from "reactstrap";
 import classnames from "classnames";
 import { AutoScaleAxis } from "chartist";
-import { max } from "moment";
 
 class NseFO extends Component {
 
@@ -22,8 +21,8 @@ class NseFO extends Component {
   popupHtml(){
     return (
 
-        <div id="DIV_1"   style={mystyle.DIV_1}>
-          <div id="DIV_2" style={mystyle.DIV_2}>
+        <div id="DIV_1" style={mystyle.DIV_1}>
+          <div id="DIV_2" style={mystyle.DIV_2}  >
             <div id="DIV_3" style={mystyle.DIV_3}>
 
             {this.state.doneStatus?
@@ -45,7 +44,7 @@ class NseFO extends Component {
           <div id="DIV_13" style={mystyle.DIV_13}>
             <div id="DIV_14" style={mystyle.DIV_14}>
 
-              <span id="SPAN_15"  style={mystyle.SPAN_15}>Buy</span>
+              <span id="SPAN_15" style={mystyle.SPAN_15}>Buy</span>
               {this.state.currentTrade!=""?
               <span id="SPAN_16" style={mystyle.SPAN_16}>{this.state.response12[this.state.currentTrade]?.buy}</span>
 
@@ -124,13 +123,13 @@ class NseFO extends Component {
               <div id="DIV_51" style={mystyle.DIV_51}>
                 <div id="DIV_52" style={mystyle.DIV_52}>
                   <svg id="svg_53" style={mystyle.svg_53}>
-                    <path id="path_54" style={mystyle.path_54}>
+                    <path id="path_54" style={mystyle.path_54} >
 
                     </path>
                   </svg>
-                  <input type="tel" maxLength={6} id="INPUT_55" style={mystyle.INPUT_55} value={this.state.quantity} onInput={(e) => {this.handleQuantity(e)}}  />
+                  <input type="tel" maxLength={6} id="INPUT_55" style={mystyle.INPUT_55} value={this.state.quantity} onInput={(e) => {this.handleQuantity(e)}}   />
                   <svg style={mystyle.svg_56} id="svg_56">
-                    <path style={mystyle.path_57} id="path_57">
+                    <path style={mystyle.path_57} id="path_57" >
 
                     </path>
                   </svg>
@@ -193,7 +192,7 @@ class NseFO extends Component {
               <span style={mystyle.SPAN_82} id="SPAN_82">Low</span>
             </div>
           </div>
-          <div style={mystyle.DIV_83} id="DIV_83" >
+          <div style={mystyle.DIV_83} id="DIV_83">
           </div>
           <Button
                         color="primary"
@@ -211,7 +210,6 @@ class NseFO extends Component {
                       >
                         Sell
                     </Button>
-            
           <div style={mystyle.DIV_89} id="DIV_89">
             <div style={mystyle.DIV_90} id="DIV_90">
               {/* <div style={mystyle.DIV_91} id="DIV_91">
@@ -316,14 +314,53 @@ class NseFO extends Component {
         </div>
       );
 }
+async nseFOData(str){
+  if(str === undefined){
+    str = "";
+  }
 
+
+  localStorage.setItem("nseFO",str)
+ //console.log("str",str)
+  var config = {
+    method: 'GET',
+    url: '?m='+str,
+
+
+  };
+
+var self = this;
+   await  API(config)
+   .then((response) => {
+   // this.setState({name: "RESPONSE TEXT"});
+    //this.setState({name: response.data.name});
+    //console.log("response.data",response.data);
+   // this.setState({currentTrade:Object.keys(response.data.data)[0]})
+   if(response.data.data!='{}')
+  {
+    this.setState({response12:response.data.data})
+  }
+    else{
+      this.setState({response12:{}})
+    }
+
+
+  })
+
+      .catch(function (error) {
+        if(error.response){
+           // console.log('error msg ',error);
+        //  setError({'name':error.response.data.message})
+        }
+});
+}
   async mcxData(str){
     if(str === undefined){
       str = "";
     }
 
 
-    localStorage.setItem("str",str)
+    localStorage.setItem("mcx",str)
    //console.log("str",str)
     var config = {
       method: 'GET',
@@ -389,11 +426,13 @@ async markAsClosed(id){
        }
   });
 }
-handleChange(e){
-  let fruites = this.state.comp
+handleChangeMCX(e){
+  let fruites = this.state.comp1
   var val = e.target.value;
-  console.log("checkedArray",this.state.checkedArray);
-  var t = localStorage.getItem('str');
+  console.log("checkedArray",this.state.checkedArrayMCX);
+  var t = localStorage.getItem('mcx');
+ 
+  
   if(!e.target.checked )
   {
     t = t.replace("/"+val,"")
@@ -403,12 +442,65 @@ handleChange(e){
   }
   else{
     if(t!=""){
-      t = t+"/"+val
+      t = t+"/"+val;
     }
     else{
       t = val;
     }
+  };
+  
+  
+
+
+
+   fruites.forEach(fruite => {
+     if (fruite.value === e.target.value)
+     fruite.isChecked =  e.target.checked
+    })
+     this.setState({comp1: fruites})
+
+
+     
+
+
+
+     console.log("tsend data",t)
+
+    this.setState({checkedArrayMCX:t}, () =>
+    this.mcxData(t))
+
+   }
+   toggle1(tab) {
+		if (this.state.activeTab1 !== tab) {
+			this.setState({
+				activeTab1: tab
+			});
+		}
+	}
+handleChange(e){
+  let fruites = this.state.comp
+  var val = e.target.value;
+  console.log("checkedArraynseFO",this.state.checkedArrayNseFO);
+  var t = localStorage.getItem('nseFO');
+  if(!e.target.checked )
+  {
+    t = t.replace("/"+val,"")
+    t = t.replace(val,"")
+
+
   }
+  else{
+    if(t!=""){
+      t = t+"/"+val;
+    }
+    else{
+      t = val;
+    }
+  };
+  
+  
+
+
 
    fruites.forEach(fruite => {
      if (fruite.value === e.target.value)
@@ -417,11 +509,14 @@ handleChange(e){
      this.setState({comp: fruites})
 
 
+     
+
+
 
      console.log("t",t)
 
-    this.setState({checkedArray:t}, () =>
-    this.mcxData(t))
+    this.setState({checkedArrayNseFO:t}, () =>
+    this.nseFOData(t))
 
    }
    toggle1(tab) {
@@ -604,9 +699,8 @@ console.log("Wallet updated");
 		this.t_col2 = this.t_col2.bind(this);
 		this.t_col3 = this.t_col3.bind(this);
 		this.t_col5 = this.t_col5.bind(this);
-
-
-   this.buy = this.buy.bind(this);
+    this.nseFOData = this.nseFOData.bind(this)
+    this.buy = this.buy.bind(this);
     this.state = {
        data234 : {
         columns: [
@@ -650,6 +744,12 @@ console.log("Wallet updated");
         {id: 3, value: "ASIANPAINT", isChecked: false},
         {id: 4, value: "AUBANK", isChecked: false}
       ],
+      comp1: [
+        {id: 1, value: "GOLD", isChecked: false},
+        {id: 2, value: "SILVER", isChecked: false},
+        {id: 3, value: "COPPER", isChecked: false},
+        {id: 4, value: "DIAMOND", isChecked: false}
+      ],
 
         visible: false,
         response12: { },
@@ -668,14 +768,15 @@ console.log("Wallet updated");
 
         */
 
-        checkedArray : "",
-
+        checkedArrayNseFO : "",
+        checkedArrayMCX : "",
       breadcrumbItems : [
         { title : "Trading", link : "/buttonPage" },
         { title : "Back", link : "#" },
       ],
     }
     this.handleChange = this.handleChange.bind(this);
+    this.handleChangeMCX = this.handleChangeMCX.bind(this);
     };
     tog_small(data) {
 
@@ -697,7 +798,7 @@ console.log("Wallet updated");
         this.setState({
           activeTab: tab
         });
-      }
+      } 
     }
     componentWillUnmount (){
       clearInterval(this.state.interval);
@@ -707,7 +808,8 @@ console.log("Wallet updated");
       //this.sell(123456,"reliance","BUY");
 this.getTrading('yes');
 this.getTrading('no');
-      var str = localStorage.getItem("str")
+      var str = localStorage.getItem("nseFO")
+      console.log("str nsefo",str);
       if(str)
       {
         var fruites = this.state.comp
@@ -723,8 +825,33 @@ this.getTrading('no');
          })
          var self = this
          const interval =  setInterval(function() {
-            self.setState({checkedArray:str}, () =>
-            self.mcxData(localStorage.getItem("str")))
+            self.setState({checkedArrayNseFO:str}, () =>
+            self.nseFOData(localStorage.getItem("nseFO")))
+      }, 2000);
+      this.setState({interval});
+      }
+      else{
+
+      }
+      var str = localStorage.getItem("mcx")
+      console.log("mcx localstorage",str);
+      if(str)
+      {
+        var fruites = this.state.comp
+        fruites.forEach(fruite => {
+        //  console.log(str.indexOf(fruite.value));
+        //  console.log(str)
+          if (str.indexOf(fruite.value)>-1)
+          {
+        //    console.log("fruite",fruite)
+            fruite.isChecked =  true
+          }
+
+         })
+         var self = this
+         const interval =  setInterval(function() {
+            self.setState({checkedArrayMCX:str}, () =>
+            self.mcxData(localStorage.getItem("mcx")))
       }, 2000);
       this.setState({interval});
       }
@@ -792,9 +919,10 @@ this.setState({quantity:e.target.value});
 														this.toggle("1");
 													}}
 												>
-													Home
+													NSEFO
 												</NavLink>
 											</NavItem>
+                      
 											<NavItem>
 												<NavLink
 													style={{ cursor: "pointer" }}
@@ -805,7 +933,7 @@ this.setState({quantity:e.target.value});
 														this.toggle("2");
 													}}
 												>
-													Watchlist
+													MCX
 												</NavLink>
 											</NavItem>
 											<NavItem>
@@ -818,7 +946,7 @@ this.setState({quantity:e.target.value});
 														this.toggle("3");
 													}}
 												>
-													Net Position
+													Watch List
 												</NavLink>
 											</NavItem>
 											<NavItem>
@@ -829,6 +957,19 @@ this.setState({quantity:e.target.value});
 													})}
 													onClick={() => {
 														this.toggle("4");
+													}}
+												>
+												Net Position
+												</NavLink>
+											</NavItem>
+                      <NavItem>
+												<NavLink
+													style={{ cursor: "pointer" }}
+													className={classnames({
+														active: this.state.activeTab === "5"
+													})}
+													onClick={() => {
+														this.toggle("5");
 													}}
 												>
 												History
@@ -846,22 +987,79 @@ this.setState({quantity:e.target.value});
                           size="lg"
                           isOpen={this.state.modal_small}
                           toggle={this.tog_small}
-                          
                         >
-                         
-                          <ModalBody style={{padding:0,borderRadius:19}}>
-                           
+                          {/* <ModalHeader toggle={() => this.setState({ modal_small: false })}>
+                              {this.state.currentTrade}
 
+                          </ModalHeader> */}
+                          <ModalBody  style={{padding: "0px"}} >
+                          
+                            <p style={{marginBottom: "0px"}}>
+                             <table>
+                               {this.state.response12?<>
+                             {this.state.response12[this.state.currentTrade] ?
+
+                               <tbody>
+                                 {/* <tr>
+                                   <td colSpan="3">
+                                     {this.state.doneStatus?
+                                   <Alert color="success" >
+                                                Successfull!!
+                                            </Alert>:<></>}
+                                   </td>
+                                 </tr> */}
+
+                                            {/* <tr>
+<td style={{maxWidth:"25px"}}>Quantity </td><td><input type="text" style={{width:"70px"}}  className="form-control form-control" value={this.state.quantity} onInput={(e) => {this.handleQuantity(e)}} ></input></td>
+                                              <td>
+
+
+                            <Button
+                        color="primary"
+                        className=" waves-effect waves-light mr-1"
+                        onClick={() => this.buy(this.state.response12[this.state.currentTrade]?.buy,this.state.currentTrade,"transactionbuy")}
+                      >
+                        Buy
+                    </Button>
+
+                                              </td>
+                                              <td>  <Button
+                        color="light"
+                        className="waves-effect mr-1"
+                        onClick={() => this.buy(this.state.response12[this.state.currentTrade]?.sell,this.state.currentTrade,"transactionsell")}
+                      >
+                        Sell{this.state.response12[this.state.currentTrade]?.sell}
+                    </Button></td>
+                                            </tr>
+                                            <tr>
+
+                                          <td><strong>Buy:</strong> {this.state.response12[this.state.currentTrade]?.buy}</td>
+                                          </tr>
+                                            <tr>
+
+
+                                           <td><strong>Sell:</strong> {this.state.response12[this.state.currentTrade]?.sell}</td>
+                                           </tr>
+                                            <tr>
+                                           <td><strong>HIGH:</strong> {this.state.response12[this.state.currentTrade]?.high}</td>
+                                           </tr>
+                                            <tr>
+                                           <td><strong>LOW:</strong> {this.state.response12[this.state.currentTrade]?.low}</td>
+                                           <td><strong>Open:</strong> {this.state.response12[this.state.currentTrade]?.open}</td>
+                               </tr> */}
+                               </tbody>:<></>}</>
+                               :<></>}
+                             </table>
                              {html}
-                         
-                          </ModalBody>
-                        </Modal>
+                          </p>
+                            <p className="mb-0">
+
+                          </p>
+                          </ModalBody >
+                        </Modal >
                             <h4 className="card-title">NSEFO Data</h4>
+                            
                             <MDBDataTable responsive bordered data={this.state.data234} />
-
-                            {/* <input type="text" placeholder="search" onChange={(event)=>{
-
-                            }}  /> */}
                             { Object.values(this.state.comp).map(t => <div className="form-check">
                     <input
                       className="form-check-input"
@@ -882,7 +1080,35 @@ this.setState({quantity:e.target.value});
 													</Col>
 												</Row>
 											</TabPane>
-											<TabPane tabId="2" className="p-3">
+                      <TabPane tabId="2" className="p-3">
+												<Row>
+													<Col sm="12">
+														<CardText>
+
+
+                            <h4 className="card-title">MCX Data</h4>
+                            <MDBDataTable responsive bordered data={this.state.data234} />
+                            { Object.values(this.state.comp1).map(t => <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      value={t.value}
+                      id="flexCheckDefault"
+                      checked={t.isChecked} onChange={this.handleChangeMCX}
+                    />
+                    <label className="form-check-label" >
+                    {t.value}
+                    </label>
+
+
+                  </div>
+                  )}
+
+                          								</CardText>
+													</Col>
+												</Row>
+											</TabPane>
+											<TabPane tabId="3" className="p-3">
 												<Row>
 													<Col sm="12">
 														<CardText>
@@ -943,7 +1169,7 @@ this.setState({quantity:e.target.value});
 													</Col>
 												</Row>
 											</TabPane>
-											<TabPane tabId="3" className="p-3">
+											<TabPane tabId="4" className="p-3">
 												<Row>
 													<Col sm="12">
 														<CardText>
@@ -971,9 +1197,16 @@ this.setState({quantity:e.target.value});
 
                                               </th>
                                               <th colSpan="2"  style={{color:"red",fontWeight:"bold"}}>
+
+Buy : {parseFloat(this.state.response12[bl.sharename]?.buy)}
+
+quantity : {parseFloat(bl.buy*bl.quantity)}
+
+quantity : {parseFloat(bl.buy*bl.quantity)}
+
                                               {bl.action=='BUY'?
-                                                <>{(this.state.response12[bl.sharename]?.buy-bl.buy)*bl.quantity}</>
-                                                :<>{(this.state.response12[bl.sharename]?.sell-bl.sell)*bl.quantity}</>}
+                                                <>{(parseFloat(this.state.response12[bl.sharename]?.buy)-parseFloat(bl.buy*bl.quantity))}</>
+                                                :<>{(parseFloat(this.state.response12[bl.sharename]?.sell)-parseFloat(bl.sell*bl.quantity))}</>}
                                                 
                                                 
                                               <button type="button" class="btn btn-primary"  onClick={() => this.markAsClosed(bl.id)}>
@@ -1006,7 +1239,7 @@ this.setState({quantity:e.target.value});
 													</Col>
 												</Row>
 											</TabPane>
-											<TabPane tabId="4" className="p-3">
+											<TabPane tabId="5" className="p-3">
 												<Row>
 													<Col sm="12">
 														<CardText>
@@ -1090,7 +1323,7 @@ this.setState({quantity:e.target.value});
               </Container>
         </div>
       </React.Fragment>
-    )
+    );
   }
 }
 
@@ -1099,13 +1332,14 @@ export default NseFO;
 
 const mystyle =  {"DIV_1":
     {
-      "tabSize":"4","textAlign":"center","textSizeAdjust":"100%","top":"-11.5px","transformOrigin":"300px 149.5px","whiteSpace":"nowrap","zIndex":"1500","background":"rgb(229, 231, 235) none repeat scroll 0% 0% / auto padding-box border-box","border":"0px solid rgb(229, 231, 235)","borderRadius":"15px","borderSpacing":"2px 2px","flexFlow":"column nowrap","font":"700 14.4px / 21.6px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","padding":"10px 20px 16px;"
-    }
+      "tabSize":"4","textAlign":"center","textSizeAdjust":"100%","top":"-11.5px","transformOrigin":"300px 149.5px","whiteSpace":"nowrap","zIndex":"1500","background":"rgb(229, 231, 235) none repeat scroll 0% 0% / auto padding-box border-box","border":"0px solid rgb(229, 231, 235)","borderRadius":"17px","borderSpacing":"2px 2px","flexFlow":"column nowrap","font":"700 14.4px / 21.6px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","padding":"0px 0px 7px"
+  }
 
+ 
 
     ,"DIV_1_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"block","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 14.4px / 21.6px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_1_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"block","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 14.4px / 21.6px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},
     
-    "DIV_2":{ "marginLeft": "110px", "margineft":"200px", "alignItems":"center","blockSize":"41px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderEndEndRadius":"15px","borderEndStartRadius":"15px","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","borderStartEndRadius":"15px","borderStartStartRadius":"15px","bottom":"0px","boxSizing":"border-box","display":"grid","gridTemplateColumns":"162.812px 234.375px 162.812px","gridTemplateRows":"31px","height":"41px","inlineSize":"560px","insetBlockEnd":"0px","insetBlockStart":"0px","insetInlineEnd":"0px","insetInlineStart":"0px","left":"0px","letterSpacing":"1px","minBlockSize":"auto","minHeight":"auto","minInlineSize":"auto","minWidth":"auto","paddingBlockEnd":"7px","paddingBlockStart":"3px","perspectiveOrigin":"280px 20.5px","position":"relative","right":"0px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","top":"0px","transformOrigin":"280px 20.5px","whiteSpace":"nowrap","width":"560px","border":"0px solid rgb(229, 231, 235)","borderRadius":"15px","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","padding":"3px 0px 7px"},
+    "DIV_2":{ "marginLeft": "14%", "margineft":"200px", "alignItems":"center","blockSize":"41px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderEndEndRadius":"15px","borderEndStartRadius":"15px","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","borderStartEndRadius":"15px","borderStartStartRadius":"15px","bottom":"0px","boxSizing":"border-box","display":"grid","gridTemplateColumns":"162.812px 234.375px 162.812px","gridTemplateRows":"31px","height":"41px","inlineSize":"560px","insetBlockEnd":"0px","insetBlockStart":"0px","insetInlineEnd":"0px","insetInlineStart":"0px","left":"0px","letterSpacing":"1px","minBlockSize":"auto","minHeight":"auto","minInlineSize":"auto","minWidth":"auto","paddingBlockEnd":"7px","paddingBlockStart":"3px","perspectiveOrigin":"280px 20.5px","position":"relative","right":"0px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","top":"0px","transformOrigin":"280px 20.5px","whiteSpace":"nowrap","width":"560px","border":"0px solid rgb(229, 231, 235)","borderRadius":"15px","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","padding":"2vh 0vh 7vh"},
     
     "DIV_2_after":{ "borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"block","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},
     "DIV_2_before":{ "borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"block","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_3":{"alignItems":"center","blockSize":"28px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"flex","height":"28px","inlineSize":"162.812px","letterSpacing":"1px","minBlockSize":"auto","minHeight":"auto","minInlineSize":"auto","minWidth":"auto","perspectiveOrigin":"81.4062px 14px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","transformOrigin":"81.4062px 14px","whiteSpace":"nowrap","width":"162.812px","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_3_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"block","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_3_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"block","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_4":{"blockSize":"28px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderEndEndRadius":"50px","borderEndStartRadius":"50px","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","borderStartEndRadius":"50px","borderStartStartRadius":"50px","boxSizing":"border-box","cursor":"pointer","height":"28px","inlineSize":"50px","insetBlockStart":"10px","insetInlineStart":"10px","left":"10px","letterSpacing":"1px","minBlockSize":"auto","minHeight":"auto","minInlineSize":"auto","minWidth":"auto","paddingBlockEnd":"2px","paddingBlockStart":"2px","paddingInlineEnd":"2px","paddingInlineStart":"2px","perspectiveOrigin":"25px 14px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","top":"10px","transform":"matrix(0.9, 0, 0, 0.9, 0, 0)","transformOrigin":"25px 14px","whiteSpace":"nowrap","width":"50px","zIndex":"1500","background":"rgba(35, 35, 35, 0.9) none repeat scroll 0% 0% / auto padding-box border-box","border":"0px solid rgb(229, 231, 235)","borderRadius":"50px","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","padding":"2px"},"DIV_4_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","cursor":"pointer","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_4_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","cursor":"pointer","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_5":{"blockSize":"24px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderEndEndRadius":"50%","borderEndStartRadius":"50%","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","borderStartEndRadius":"50%","borderStartStartRadius":"50%","bottom":"0px","boxSizing":"border-box","cursor":"pointer","height":"24px","inlineSize":"24px","insetBlockEnd":"0px","insetBlockStart":"0px","insetInlineEnd":"0px","insetInlineStart":"0px","left":"0px","letterSpacing":"1px","perspectiveOrigin":"12px 12px","position":"relative","right":"0px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","top":"0px","transformOrigin":"12px 12px","whiteSpace":"nowrap","width":"24px","background":"rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box","border":"0px solid rgb(229, 231, 235)","borderRadius":"50%","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_5_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","cursor":"pointer","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_5_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","cursor":"pointer","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_6":{"blockSize":"28px","borderBlockEndColor":"rgb(35, 35, 35)","borderBlockEndStyle":"solid","borderBlockEndWidth":"1px","borderBlockStartColor":"rgb(35, 35, 35)","borderBlockStartStyle":"solid","borderBlockStartWidth":"1px","borderCollapse":"collapse","borderEndEndRadius":"50%","borderEndStartRadius":"50%","borderInlineEndColor":"rgb(35, 35, 35)","borderInlineEndStyle":"solid","borderInlineEndWidth":"1px","borderInlineStartColor":"rgb(35, 35, 35)","borderInlineStartStyle":"solid","borderInlineStartWidth":"1px","borderStartEndRadius":"50%","borderStartStartRadius":"50%","boxShadow":"rgba(0, 0, 0, 0.5) 0px 0px 10px 0px","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","height":"28px","inlineSize":"28px","letterSpacing":"1px","marginInlineEnd":"78.8125px","marginInlineStart":"6px","minBlockSize":"auto","minHeight":"auto","minInlineSize":"auto","minWidth":"auto","paddingInlineStart":"1px","perspectiveOrigin":"14px 14px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","transformOrigin":"14px 14px","whiteSpace":"nowrap","width":"28px","zIndex":"1500","background":"rgb(35, 35, 35) none repeat scroll 0% 0% / auto padding-box border-box","border":"1px solid rgb(35, 35, 35)","borderRadius":"50%","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","margin":"0px 78.8125px 0px 6px","outline":"rgb(255, 255, 255) none 0px","padding":"0px 0px 0px 1px"},"DIV_6_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","outline":"rgb(255, 255, 255) none 0px"},"DIV_6_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","outline":"rgb(255, 255, 255) none 0px"},"svg_7":{"blockSize":"30px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","height":"30px","inlineSize":"30px","letterSpacing":"1px","perspectiveOrigin":"15px 15px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","transformOrigin":"15px 15px","verticalAlign":"middle","whiteSpace":"nowrap","width":"30px","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","outline":"rgb(255, 255, 255) none 0px","overflow":"hidden"},"svg_7_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","outline":"rgb(255, 255, 255) none 0px"},"svg_7_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","outline":"rgb(255, 255, 255) none 0px"},"polygon_8":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","fill":"rgb(255, 216, 59)","letterSpacing":"1px","perspectiveOrigin":"0px 0px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","transformOrigin":"0px 0px","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","outline":"rgb(255, 255, 255) none 0px"},"polygon_8_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","fill":"rgb(255, 216, 59)","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","outline":"rgb(255, 255, 255) none 0px"},"polygon_8_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","cursor":"pointer","fill":"rgb(255, 216, 59)","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"600 17px / 22.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace","outline":"rgb(255, 255, 255) none 0px"},"DIV_9":{"blockSize":"31px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderEndEndRadius":"6px","borderEndStartRadius":"6px","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","borderStartEndRadius":"6px","borderStartStartRadius":"6px","boxShadow":"rgba(0, 0, 0, 0.8) 0px 0px 10px 0px inset","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","height":"31px","inlineSize":"194.375px","letterSpacing":"0.5px","marginInlineEnd":"20px","marginInlineStart":"20px","minBlockSize":"auto","minHeight":"auto","minInlineSize":"auto","minWidth":"auto","paddingBlockEnd":"2px","paddingBlockStart":"2px","paddingInlineEnd":"8px","paddingInlineStart":"8px","perspectiveOrigin":"97.1875px 15.5px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","transformOrigin":"97.1875px 15.5px","whiteSpace":"nowrap","width":"194.375px","background":"rgb(45, 45, 45) none repeat scroll 0% 0% / auto padding-box border-box","border":"0px solid rgb(229, 231, 235)","borderRadius":"6px","borderSpacing":"2px 2px","font":"18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","margin":"0px 20px","outline":"rgb(255, 255, 255) none 0px","padding":"2px 8px"},"DIV_9_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","letterSpacing":"0.5px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","outline":"rgb(255, 255, 255) none 0px"},"DIV_9_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 255, 255)","color":"rgb(255, 255, 255)","columnRuleColor":"rgb(255, 255, 255)","letterSpacing":"0.5px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 255, 255)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","outline":"rgb(255, 255, 255) none 0px"},"DIV_10":{"blockSize":"0px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"flex","height":"0px","inlineSize":"162.812px","justifyContent":"flex-end","letterSpacing":"1px","minBlockSize":"auto","minHeight":"auto","minInlineSize":"auto","minWidth":"auto","perspectiveOrigin":"81.4062px 0px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","transformOrigin":"81.4062px 0px","whiteSpace":"nowrap","width":"162.812px","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_10_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"block","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"DIV_10_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","display":"block","letterSpacing":"1px","tabSize":"4","textAlign":"center","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 18px / 27px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""},"svg_11":{"blockSize":"35px","borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderEndEndRadius":"100%","borderEndStartRadius":"100%","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","borderStartEndRadius":"100%","borderStartStartRadius":"100%","bottom":"15px","boxSizing":"border-box","caretColor":"rgb(255, 0, 0)","color":"rgb(255, 0, 0)","columnRuleColor":"rgb(255, 0, 0)","cursor":"pointer","display":"block","fill":"rgb(255, 0, 0)","height":"35px","inlineSize":"35px","insetBlockEnd":"15px","insetBlockStart":"-9px","insetInlineEnd":"-19px","insetInlineStart":"544px","left":"544px","letterSpacing":"1px","perspectiveOrigin":"17.5px 17.5px","position":"absolute","right":"-19px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 0, 0)","textSizeAdjust":"100%","top":"-9px","transformOrigin":"17.5px 17.5px","verticalAlign":"middle","whiteSpace":"nowrap","width":"35px","background":"rgba(0, 0, 0, 0) radial-gradient(rgb(255, 255, 255) 50%, rgba(0, 0, 0, 0) 0px) repeat scroll 0% 0% / auto padding-box border-box","border":"0px solid rgb(229, 231, 235)","borderRadius":"100%","borderSpacing":"2px 2px","font":"700 30px / 45px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","outline":"rgb(255, 0, 0) none 0px","overflow":"hidden"},"svg_11_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 0, 0)","color":"rgb(255, 0, 0)","columnRuleColor":"rgb(255, 0, 0)","cursor":"pointer","fill":"rgb(255, 0, 0)","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 0, 0)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 30px / 45px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","outline":"rgb(255, 0, 0) none 0px"},"svg_11_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 0, 0)","color":"rgb(255, 0, 0)","columnRuleColor":"rgb(255, 0, 0)","cursor":"pointer","fill":"rgb(255, 0, 0)","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 0, 0)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 30px / 45px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","outline":"rgb(255, 0, 0) none 0px"},"path_12":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 0, 0)","clipRule":"evenodd","color":"rgb(255, 0, 0)","columnRuleColor":"rgb(255, 0, 0)","cursor":"pointer","d":"path(\"M 10 18 A 8 8 0 1 0 10 2 A 8 8 0 0 0 10 18 Z M 8.707 7.293 A 1 1 0 0 0 7.293 8.707 L 8.586 10 L 7.293 11.293 A 1 1 0 1 0 8.707 12.707 L 10 11.414 L 11.293 12.707 A 1 1 0 0 0 12.707 11.293 L 11.414 10 L 12.707 8.707 A 1 1 0 0 0 11.293 7.293 L 10 8.586 L 8.707 7.293 Z\")","fill":"rgb(255, 0, 0)","fillRule":"evenodd","letterSpacing":"1px","perspectiveOrigin":"0px 0px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 0, 0)","textSizeAdjust":"100%","transformOrigin":"0px 0px","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 30px / 45px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","outline":"rgb(255, 0, 0) none 0px"},"path_12_after":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 0, 0)","clipRule":"evenodd","color":"rgb(255, 0, 0)","columnRuleColor":"rgb(255, 0, 0)","cursor":"pointer","fill":"rgb(255, 0, 0)","fillRule":"evenodd","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 0, 0)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 30px / 45px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","outline":"rgb(255, 0, 0) none 0px"},"path_12_before":{"borderBlockEndColor":"rgb(229, 231, 235)","borderBlockEndStyle":"solid","borderBlockStartColor":"rgb(229, 231, 235)","borderBlockStartStyle":"solid","borderCollapse":"collapse","borderInlineEndColor":"rgb(229, 231, 235)","borderInlineEndStyle":"solid","borderInlineStartColor":"rgb(229, 231, 235)","borderInlineStartStyle":"solid","boxSizing":"border-box","caretColor":"rgb(255, 0, 0)","clipRule":"evenodd","color":"rgb(255, 0, 0)","columnRuleColor":"rgb(255, 0, 0)","cursor":"pointer","fill":"rgb(255, 0, 0)","fillRule":"evenodd","letterSpacing":"1px","tabSize":"4","textAlign":"center","textDecoration":"none solid rgb(255, 0, 0)","textSizeAdjust":"100%","whiteSpace":"nowrap","border":"0px solid rgb(229, 231, 235)","borderSpacing":"2px 2px","font":"700 30px / 45px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"","outline":"rgb(255, 0, 0) none 0px"},
